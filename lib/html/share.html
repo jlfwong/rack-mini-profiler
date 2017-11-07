@@ -83,6 +83,15 @@ function stackprofToChrome(dump) {
 const frame = document.getElementById("devtools");
 
 function timelineLoaded(devtools) {
+    // Hide the top toolbar
+    devtools.document.querySelector("body /deep/ div > div.tabbed-pane-header.tabbed-pane-no-tab-borders").style.display = 'none'
+
+    // Hide the top sub-toolbar
+    devtools.document.querySelector("body /deep/ div.vbox.flex-auto.tabbed-pane.insertion-point-main > div > div > div.toolbar").style.display = 'none'
+
+    // Hide the console window
+    devtools.document.querySelector("body /deep/ div.widget.vbox.root-view > div > div > div.vbox.flex-auto.tabbed-pane.insertion-point-sidebar").style.display = 'none'
+
     const tracingModel = new devtools.SDK.TracingModel(new devtools.Bindings.TempFileBackingStorage())
     const cpuProfile = stackprofToChrome(profile.sampled_profile)
     tracingModel.addEvents(devtools.TimelineModel.TimelineJSProfileProcessor.buildTraceProfileFromCpuProfile(cpuProfile))
@@ -93,6 +102,7 @@ function timelineLoaded(devtools) {
 
 frame.addEventListener('load', function() {
     const devtools = frame.contentWindow
+
     devtools.InspectorFrontendAPI.showPanel('timeline');
 
     (function poll() {
