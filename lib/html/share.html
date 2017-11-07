@@ -1,11 +1,108 @@
+<!doctype html5>
 <html>
     <head>
         <title><%= name %> (<%= duration %> ms) - Profiling Results</title>
-        <script type='text/javascript' src='<%= path %>jquery.1.7.1.js?v=<%= version %>'></script>
-        <script type='text/javascript'> var profiler = <%= json %>; </script>
-        <%= includes %>
-    </head>
-    <body>
-        <div class='profiler-result-full'></div>
-    </body>
+        <script type='text/javascript'> var profile = <%= json %>; </script>
+        <style>
+            body, html {
+                margin: 0;
+            }
+        </style>
+<script>
+function stackprofToChrome(dump) {
+    var id = 1;
+    var root = {
+        id: id++,
+        functionName: "(root)",
+        fileName: "",
+        lineNumber: -1,
+        children: Object.create(null)
+    };
+    var samples = [];
+    for (var i = 0; i < dump.raw.length;) {
+        var stackHeight = dump.raw[i++];
+        var node = root;
+        for (var j = 0; j < stackHeight; j++) {
+            var frameId = dump.raw[i++];
+            if (!node.children[frameId]) {
+                var frame = dump.frames[frameId];
+                node.children[frameId] = {
+                    id: id++,
+                    functionName: frame.name,
+                    fileName: frame.file,
+                    lineNumber: frame.line,
+                    children: Object.create(null)
+                };
+            }
+            node = node.children[frameId];
+        }
+        var nSamples = dump.raw[i++];
+        for (var j = 0; j < nSamples; j++)
+            samples.push(node.id);
+    }
+    // For some reason, it seems like the profiles get truncated without this
+    for (var i = 0; i < 2; i++)
+        samples.push(1);
+    var cpuProfileNodes = [];
+    var fileNameToScriptId = Object.create(null);
+    var lastScriptId = 1;
+    function visit(node) {
+        var scriptId = fileNameToScriptId[node.fileName];
+        if (!scriptId) {
+            scriptId = lastScriptId;
+            fileNameToScriptId[node.fileName] = lastScriptId++;
+        }
+        cpuProfileNodes.push({
+            id: node.id,
+            callFrame: {
+                functionName: node.functionName,
+                scriptId: "" + scriptId,
+                url: node.fileName,
+                lineNumber: node.lineNumber,
+                columnNumber: 0
+            },
+            hitCount: 0,
+            children: Object.keys(node.children).map(function (k) { return node.children[k]; }).map(function (c) { return c.id; })
+        });
+        Object.keys(node.children).forEach(function (k) { return visit(node.children[k]); });
+    }
+    visit(root);
+    return {
+        nodes: cpuProfileNodes,
+        startTime: 0,
+        endTime: 0,
+        samples: samples,
+        timeDeltas: samples.map(function () { return dump.interval; })
+    };
+}
+</script>
+</head>
+<body>
+<iframe id="devtools" frameborder="0" height="100%" width="100%" src="chrome/inspector.html"></iframe>
+<script>
+const frame = document.getElementById("devtools");
+
+function timelineLoaded(devtools) {
+    const tracingModel = new devtools.SDK.TracingModel(new devtools.Bindings.TempFileBackingStorage())
+    const cpuProfile = stackprofToChrome(profile.sampled_profile)
+    tracingModel.addEvents(devtools.TimelineModel.TimelineJSProfileProcessor.buildTraceProfileFromCpuProfile(cpuProfile))
+    devtools.UI.panels.timeline.loadingStarted()
+    devtools.UI.panels.timeline._prepareToLoadTimeline();
+    devtools.UI.panels.timeline.loadingComplete(tracingModel);
+}
+
+frame.addEventListener('load', function() {
+    const devtools = frame.contentWindow
+    devtools.InspectorFrontendAPI.showPanel('timeline');
+
+    (function poll() {
+        if (devtools.TimelineModel && devtools.UI.panels.timeline) {
+            timelineLoaded(devtools)
+        } else {
+            setTimeout(poll, 100)
+        }
+    })()
+})
+</script>
+</body>
 </html>
