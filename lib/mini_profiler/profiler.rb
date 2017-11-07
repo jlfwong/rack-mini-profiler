@@ -1,3 +1,5 @@
+require 'stackprof'
+
 module Rack
   class MiniProfiler
     class << self
@@ -279,7 +281,10 @@ module Rack
             end
           end
         else
-          status,headers,body = @app.call(env)
+          stackprof_results = StackProf.run(mode: :cpu, interval: 500, raw: true) do
+            status,headers,body = @app.call(env)
+          end
+          current.page_struct[:sampled_profile] = stackprof_results
         end
       ensure
         trace.disable if trace
