@@ -1,4 +1,5 @@
 import { h, render, Component } from 'preact';
+import { StyleSheet, css } from 'aphrodite';
 
 interface Result {
   id: string
@@ -92,55 +93,50 @@ interface MiniProfilerState {
 }
 
 class Details extends Component<MiniProfilerState, void> {
-  rowStyle = {
-    width: 300,
-    height: 24,
-    fontSize: '10px',
-    lineHeight: '24px',
-    color: '#F2F2F2',
-    fontFamily: 'Monaco, Courier, monospace',
-    display: 'flex',
-    pointerEvents: 'auto'
-  }
-
-  oddRowStyle = {
-    ...this.rowStyle,
-    backgroundColor: '#222222'
-  }
-
-  evenRowStyle = {
-    ...this.rowStyle,
-    backgroundColor: '#050505'
-  }
-
-  durationStyle = {
-    width: 60,
-    display: 'block',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    paddingRight: 6,
-    textAlign: 'right'
-  }
-
-  urlStyle = {
-    display: 'block',
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-    whiteSpace: 'nowrap',
-    paddingLeft: 6,
-    flex: 1
-  }
-
-  boldStyle = {
+  styles = StyleSheet.create({
+    row: {
+      width: 300,
+      height: 24,
+      fontSize: '10px',
+      lineHeight: '24px',
+      color: '#F2F2F2',
+      fontFamily: 'Courier, monospace',
+      display: 'flex',
+      pointerEvents: 'auto'
+    },
+    oddRow: {
+      backgroundColor: '#222222'
+    },
+    evenRow: {
+      backgroundColor: '#050505'
+    },
+    duration: {
+      width: 60,
+      display: 'block',
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      paddingRight: 6,
+      textAlign: 'right'
+    },
+    url: {
+      display: 'block',
+      textOverflow: 'ellipsis',
+      overflow: 'hidden',
+      whiteSpace: 'nowrap',
+      paddingLeft: 6,
+      flex: 1
+    },
+    bold: {
     fontWeight: 'bold'
-  }
+    }
+  })
 
   renderResult = (result: Result, index: number) => {
-    return <div style={index % 2 === 0 ? this.evenRowStyle : this.oddRowStyle}>
-      <span style={this.durationStyle}>
-        <span style={this.boldStyle}>{Math.round(result.durationMs)}</span>ms
+    return <div className={css(this.styles.row, index % 2 === 0 ? this.styles.evenRow : this.styles.oddRow)}>
+      <span className={css(this.styles.duration)}>
+        <span className={css(this.styles.bold)}>{Math.round(result.durationMs)}</span>ms
       </span>
-      <span style={this.urlStyle}>
-        <span style={this.boldStyle}>{result.method}</span>
+      <span className={css(this.styles.url)}>
+        <span className={css(this.styles.bold)}>{result.method}</span>
         {' '}
         {result.urlPath}
       </span>
@@ -153,27 +149,28 @@ class Details extends Component<MiniProfilerState, void> {
 }
 
 class EntryPoint extends Component<MiniProfilerState, void> {
-  style = {
-    width: 102,
-    height: 24,
-    fontFamily: 'Monaco, Courier, monospace',
-    fontSize: '10px',
-    lineHeight: '24px',
-    backgroundColor: '#050505',
-    color: '#E0E0E0',
-    textAlign: 'center',
-    userSelect: 'none',
-    pointerEvents: 'auto'
-  }
-
-  boldStyle = {
-    fontWeight: 'bold'
-  }
+  styles = StyleSheet.create({
+    entryPoint: {
+      width: 102,
+      height: 24,
+      fontFamily: 'Monaco, Courier, monospace',
+      fontSize: '10px',
+      lineHeight: '24px',
+      backgroundColor: '#050505',
+      color: '#E0E0E0',
+      textAlign: 'center',
+      userSelect: 'none',
+      pointerEvents: 'auto'
+    },
+    bold: {
+      fontWeight: 'bold'
+    }
+  })
 
   render() {
     const max = Math.round(Math.max(...(this.props.results.map(res => res.durationMs))))
-    return <div style={this.style}>
-      <span style={this.boldStyle}>{max}</span>ms max/{this.props.results.length}
+    return <div className={css(this.styles.entryPoint)}>
+      <span className={css(this.styles.bold)}>{max}</span>ms max/{this.props.results.length}
     </div>
   }
 }
@@ -218,28 +215,43 @@ class MiniProfiler extends Component<{}, MiniProfilerState> {
     this.fetchResultOnce(this.options.currentId)
   }
 
-  style = {
-    zIndex: Number.MAX_SAFE_INTEGER - 10,
-    width: '100vw',
-    height: '100vh',
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    pointerEvents: 'none',
-    display: 'flex',
-    justifyContent: 'flex-end',
-    alignItems: 'flex-end',
-    flexDirection: 'column'
-  }
+  styles = StyleSheet.create({
+    container: {
+      zIndex: Number.MAX_SAFE_INTEGER - 10,
+      width: '100vw',
+      height: '100vh',
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      pointerEvents: 'none',
+      display: 'flex',
+      justifyContent: 'flex-end',
+      alignItems: 'flex-end',
+      flexDirection: 'column'
+    },
+    hoverArea: {
+      display: 'flex',
+      justifyContent: 'flex-end',
+      alignItems: 'flex-end',
+      flexDirection: 'column',
+      ':hover .mini-profiler-details': {
+        display: 'block'
+      }
+    }
+  })
 
   render() {
     const {results} = this.state
     if (results.length === 0) {
       return null
     }
-    return <div style={this.style}>
-      <Details results={results} />
-      <EntryPoint results={results} />
+    return <div className={css(this.styles.container)}>
+      <div className={css(this.styles.hoverArea)}>
+        <div style={{display: 'none'}} className={'mini-profiler-details'}>
+          <Details results={results} />
+        </div>
+        <EntryPoint results={results} />
+      </div>
     </div>
   }
 }
