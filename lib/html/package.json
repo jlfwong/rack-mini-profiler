@@ -1,0 +1,21 @@
+{
+  "name": "mini-profiler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "watch": "rollup -c --watch",
+    "build": "rollup -c"
+  },
+  "author": "",
+  "private": true,
+  "license": "MIT",
+  "dependencies": {
+    "rollup": "^0.51.5",
+    "rollup-plugin-commonjs": "^8.2.6",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-plugin-typescript": "^0.8.1",
+    "typescript": "^2.6.1",
+    "xhr": "^2.4.0"
+  }
+}
