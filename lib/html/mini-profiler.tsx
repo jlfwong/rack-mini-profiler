@@ -89,7 +89,8 @@ function getOptions(script: HTMLScriptElement) {
 }
 
 interface MiniProfilerState {
-  results: Result[]
+  results: Result[],
+  options: Options
 }
 
 class Details extends Component<MiniProfilerState, void> {
@@ -97,12 +98,15 @@ class Details extends Component<MiniProfilerState, void> {
     row: {
       width: 300,
       height: 24,
-      fontSize: '10px',
+      fontSize: '11px',
       lineHeight: '24px',
       color: '#F2F2F2',
       fontFamily: 'Courier, monospace',
       display: 'flex',
-      pointerEvents: 'auto'
+      pointerEvents: 'auto',
+      ':hover': {
+        backgroundColor: '#828282'
+      }
     },
     oddRow: {
       backgroundColor: '#222222'
@@ -131,7 +135,11 @@ class Details extends Component<MiniProfilerState, void> {
   })
 
   renderResult = (result: Result, index: number) => {
-    return <div className={css(this.styles.row, index % 2 === 0 ? this.styles.evenRow : this.styles.oddRow)}>
+    const {options} = this.props
+
+    const url = `${options.path}results?id=${result.id}`
+
+    return <a href={url} target='_blank' className={css(this.styles.row, index % 2 === 0 ? this.styles.evenRow : this.styles.oddRow)}>
       <span className={css(this.styles.duration)}>
         <span className={css(this.styles.bold)}>{Math.round(result.durationMs)}</span>ms
       </span>
@@ -140,7 +148,7 @@ class Details extends Component<MiniProfilerState, void> {
         {' '}
         {result.urlPath}
       </span>
-    </div>
+    </a>
   }
 
   render() {
@@ -153,14 +161,17 @@ class EntryPoint extends Component<MiniProfilerState, void> {
     entryPoint: {
       width: 102,
       height: 24,
-      fontFamily: 'Monaco, Courier, monospace',
-      fontSize: '10px',
+      fontFamily: 'Courier, monospace',
+      fontSize: '11px',
       lineHeight: '24px',
       backgroundColor: '#050505',
       color: '#E0E0E0',
       textAlign: 'center',
       userSelect: 'none',
-      pointerEvents: 'auto'
+      pointerEvents: 'auto',
+      ':hover': {
+        backgroundColor: '#828282'
+      }
     },
     bold: {
       fontWeight: 'bold'
@@ -234,6 +245,7 @@ class MiniProfiler extends Component<{}, MiniProfilerState> {
       justifyContent: 'flex-end',
       alignItems: 'flex-end',
       flexDirection: 'column',
+      pointerEvents: 'auto',
       ':hover .mini-profiler-details': {
         display: 'block'
       }
@@ -248,9 +260,9 @@ class MiniProfiler extends Component<{}, MiniProfilerState> {
     return <div className={css(this.styles.container)}>
       <div className={css(this.styles.hoverArea)}>
         <div style={{display: 'none'}} className={'mini-profiler-details'}>
-          <Details results={results} />
+          <Details results={results} options={this.options} />
         </div>
-        <EntryPoint results={results} />
+        <EntryPoint results={results} options={this.options} />
       </div>
     </div>
   }
