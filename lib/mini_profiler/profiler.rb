@@ -281,7 +281,7 @@ module Rack
             end
           end
         else
-          stackprof_results = StackProf.run(mode: :cpu, interval: 500, raw: true) do
+          stackprof_results = StackProf.run(mode: :wall, interval: 500, raw: true) do
             status,headers,body = @app.call(env)
           end
           current.page_struct[:sampled_profile] = stackprof_results
