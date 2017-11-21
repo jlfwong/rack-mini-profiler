@@ -2,7 +2,7 @@
 
 This is an opionated fork of the wonderful [MiniProfiler/rack-mini-profiler][0]. Designed for use at [Figma][3], but hopefully useful externally!
 
-This fork dramatically simplifies the UI (at the cost of removing many features), and adds support for recording sampling profiles using [stackprof][1] on all requests, and displaying them in an embedded copy of [Chrome Developer Tools][2].
+This fork dramatically simplifies the UI (at the cost of removing many features), adds support for recording sampling profiles using [stackprof][1] on all requests, and displaying them in an embedded copy of [Chrome Developer Tools][2].
 
 This work was heavily inspired by the work done for a similar use case at Khan Academy: [gae_mini_profiler][4], in particular the [work done by @chrisklaiber][5] to add an embedded copy of Chrome Developer Tools.
 
