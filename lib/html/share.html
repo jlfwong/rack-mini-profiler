@@ -72,7 +72,7 @@ function stackprofToChrome(dump) {
         startTime: 0,
         endTime: 0,
         samples: samples,
-        timeDeltas: samples.map(function () { return dump.interval; })
+        timeDeltas: dump.raw_timestamp_deltas.concat([dump.interval, dump.interval])
     };
 }
 </script>
