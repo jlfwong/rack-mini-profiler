@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
     "CHANGELOG.md"
   ]
   s.add_runtime_dependency 'rack', '>= 1.2.0'
+  s.add_runtime_dependency 'stackprof', '>= 0.2.11'
   s.required_ruby_version = '>= 1.9.3'
 
   s.metadata = {
