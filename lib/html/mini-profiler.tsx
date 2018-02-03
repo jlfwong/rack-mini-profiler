@@ -216,6 +216,12 @@ class MiniProfiler extends Component<{}, MiniProfilerState> {
     addXhrOpenListener((xhr) => {
       xhr.addEventListener('load', () => {
         if (xhr.responseURL.indexOf(this.options.path) !== -1) return
+
+        if (!xhr.responseURL.startsWith(`${window.location.protocol}//${window.location.host}`)) {
+          // Ignore cross domain requests
+          return
+        }
+
         const ids = xhr.getResponseHeader('X-MiniProfiler-Ids')
         if (ids) {
           const idList: string[] = JSON.parse(ids)
