@@ -1,22 +1,24 @@
 # rack-mini-profiler
 
-This is an opionated fork of the wonderful [MiniProfiler/rack-mini-profiler][0]. Designed for use at [Figma][3], but hopefully useful externally!
+This is an opinionated fork of the wonderful 
+[MiniProfiler/rack-mini-profiler][0].  Designed for use at [Figma][3], but 
+hopefully useful externally!
 
-This fork dramatically simplifies the UI (at the cost of removing many features), adds support for recording sampling profiles using [stackprof][1] on all requests, and displaying them in an embedded copy of [Chrome Developer Tools][2].
+This fork dramatically simplifies the UI (at the cost of removing many 
+features), adds support for recording sampling profiles using [stackprof][1] on 
+all requests, and displaying them in an embedded copy of [speedscope][2].
 
-This work was heavily inspired by the work done for a similar use case at Khan Academy: [gae_mini_profiler][4], in particular the [work done by @chrisklaiber][5] to add an embedded copy of Chrome Developer Tools.
+This work was heavily inspired by the work done for a similar use case at Khan 
+Academy: [gae_mini_profiler][4], in particular the [work done by 
+@chrisklaiber][5] to add an embedded copy of Chrome Developer Tools.
 
 
 ## Screenshots
 
 ![Request listing](https://i.imgur.com/emaKo24.png)
-![Flamechart](https://i.imgur.com/FX1XiwJ.png)
-
-
+![Speedscope](https://user-images.githubusercontent.com/150329/42205346-14a4d6f4-7e59-11e8-9e14-bb7d922c1aec.png)
 
 ## Licence
-
-License for the embedded Chrome devtools is BSD-ish, and can be found here in [lib/html/chrome/inspector.html][6]
 
 The MIT License (MIT)
 
@@ -42,8 +44,7 @@ THE SOFTWARE.
 
 [0]: https://github.com/MiniProfiler/rack-mini-profiler
 [1]: https://github.com/tmm1/stackprof
-[2]: https://github.com/ChromeDevTools/devtools-frontend
+[2]: https://github.com/jlfwong/speedscope
 [3]: https://www.figma.com/
 [4]: https://github.com/Khan/gae_mini_profiler
 [5]: https://github.com/Khan/gae_mini_profiler/commit/cee9b20e0e62134672305ea4d5054848dd6322aa
-[6]: https://github.com/jlfwong/rack-mini-profiler/blob/master/

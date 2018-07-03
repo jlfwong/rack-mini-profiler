@@ -137,7 +137,10 @@ class Details extends Component<MiniProfilerState, void> {
   renderResult = (result: Result, index: number) => {
     const {options} = this.props
 
-    const url = `${options.path}results?id=${result.id}`
+    const {protocol, host} = window.location
+    const profileURL = `${protocol}//${host}/${options.path}profile?id=${result.id}`
+    const title = result.urlPath
+    const url = `${options.path}speedscope/index.html#profileURL=${encodeURIComponent(profileURL)}&title=${encodeURIComponent(title)}`
 
     return <a href={url} target='_blank' className={css(this.styles.row, index % 2 === 0 ? this.styles.evenRow : this.styles.oddRow)}>
       <span className={css(this.styles.duration)}>

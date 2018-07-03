@@ -23,10 +23,6 @@ module Rack
         @resources_root ||= ::File.expand_path("../../html", __FILE__)
       end
 
-      def share_template
-        @share_template ||= ERB.new(::File.read(::File.expand_path("../html/share.html", ::File.dirname(__FILE__))))
-      end
-
       def current
         Thread.current[:mini_profiler_private]
       end
@@ -99,32 +95,36 @@ module Rack
         @storage.set_viewed(user(env), id)
       end
 
-      # If we're an XMLHttpRequest, serve up the contents as JSON
-      if request.xhr?
-        result_json = page_struct.to_json
-        [200, { 'Content-Type' => 'application/json'}, [result_json]]
-      else
-        # Otherwise give the HTML back
-        html = generate_html(page_struct, env)
-        [200, {'Content-Type' => 'text/html'}, [html]]
-      end
+      result_json = page_struct.to_json
+      [200, { 'Content-Type' => 'application/json'}, [result_json]]
     end
 
-    def generate_html(page_struct, env, result_json = page_struct.to_json)
-      path = "#{env['RACK_MINI_PROFILER_ORIGINAL_SCRIPT_NAME']}#{@config.base_url_path}"
-      version = MiniProfiler::ASSET_VERSION
-      json = result_json
-      includes = get_profile_script(env)
-      name = page_struct[:name]
-      duration = page_struct.duration_ms.round(1).to_s
+    def serve_profile(env)
+      request     = Rack::Request.new(env)
+      id          = request[:id]
+      page_struct = @storage.load(id)
+      unless page_struct
+        @storage.set_viewed(user(env), id)
+        id        = ERB::Util.html_escape(request['id'])
+        user_info = ERB::Util.html_escape(user(env))
+        return [404, {}, ["Request not found: #{id} - user #{user_info}"]]
+      end
+      unless page_struct[:has_user_viewed]
+        page_struct[:client_timings]  = TimerStruct::Client.init_from_form_data(env, page_struct)
+        page_struct[:has_user_viewed] = true
+        @storage.save(page_struct)
+        @storage.set_viewed(user(env), id)
+      end
 
-      MiniProfiler.share_template.result(binding)
+      result_json = ::JSON.generate(page_struct[:sampled_profile])
+      [200, { 'Content-Type' => 'application/json'}, [result_json]]
     end
 
     def serve_html(env)
       path      = env['PATH_INFO'].sub('//', '/')
       file_name = path.sub(@config.base_url_path, '')
 
+      return serve_profile(env) if file_name.eql?('profile')
       return serve_results(env) if file_name.eql?('results')
 
       resources_env = env.dup
