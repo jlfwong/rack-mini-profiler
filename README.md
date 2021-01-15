@@ -8,6 +8,8 @@ This fork dramatically simplifies the UI (at the cost of removing many
 features), adds support for recording sampling profiles using [stackprof][1] on 
 all requests, and displaying them in an embedded copy of [speedscope][2].
 
+Since this was written, however, the upstream `rack-mini-profiler` now also embeds speedscope! https://github.com/MiniProfiler/rack-mini-profiler/pull/475
+
 This work was heavily inspired by the work done for a similar use case at Khan 
 Academy: [gae_mini_profiler][4], in particular the [work done by 
 @chrisklaiber][5] to add an embedded copy of Chrome Developer Tools.
